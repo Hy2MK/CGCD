@@ -1,31 +1,14 @@
 
-# Proxy Anchor Loss for Deep Metric Learning
-
-Official PyTorch implementation of CVPR 2020 paper [**Proxy Anchor Loss for Deep Metric Learning**](https://arxiv.org/abs/2003.13911). 
-
-A standard embedding network trained with **Proxy-Anchor Loss** achieves SOTA performance and most quickly converges.
-
-This repository provides source code of experiments on four datasets (CUB-200-2011, Cars-196, Stanford Online Products and In-shop) and pretrained models.
-
-### Accuracy in Recall@1 versus training time on the Cars-196
-
-<p align="left"><img src="misc/Recall_Trainingtime.jpg" alt="graph" width="55%"></p>
-
-
+# Proxy Anchor-based Unsupervised Learning for Continuous Generalized Category Discovery
+Official PyTorch implementation of ICCV 2023 paper [**Proxy Anchor-based Unsupervised Learning for Continuous Generalized Category Discovery**](https://arxiv.org/abs/2307.10943). 
 
 ## Requirements
-
 - Python3
 - PyTorch (> 1.0)
 - NumPy
 - tqdm
-- wandb
-- [Pytorch-Metric-Learning](https://github.com/KevinMusgrave/pytorch-metric-learning)
-
-
 
 ## Datasets
-
 1. Download four public benchmarks for deep metric learning
    - [CUB-200-2011](http://www.vision.caltech.edu/visipedia-data/CUB-200-2011/CUB_200_2011.tgz)
    - Cars-196 ([Img](http://imagenet.stanford.edu/internal/car196/car_ims.tgz), [Annotation](http://imagenet.stanford.edu/internal/car196/cars_annos.mat))

@@ -26,6 +26,7 @@ Our code is modified and adapted on these great repositories:
 - [Proxy Anchor Loss for Deep Metric Learning](https://github.com/tjddus9597/Proxy-Anchor-CVPR2020)
 
 ## New Method for Further Improvement
+.
 
 ## Citation
 If you use this method or this code in your research, please cite as:

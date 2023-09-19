@@ -1,7 +1,9 @@
 
 # Proxy Anchor-based Unsupervised Learning for Continuous Generalized Category Discovery
 ![teaser](assets/teaser.jpg)
-Official PyTorch implementation of ICCV 2023 paper [**Proxy Anchor-based Unsupervised Learning for Continuous Generalized Category Discovery**](https://arxiv.org/abs/2307.10943).
+Official PyTorch implementation of ICCV 2023 paper
+
+[**Proxy Anchor-based Unsupervised Learning for Continuous Generalized Category Discovery**](https://arxiv.org/abs/2307.10943).
 
 Code will be available soon.
 

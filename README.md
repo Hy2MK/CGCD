@@ -23,25 +23,12 @@ Code will be available soon.
 ## Acknowledgements
 Our code is modified and adapted on these great repositories:
 
-- [No Fuss Distance Metric Learning using Proxies](https://github.com/dichotomies/proxy-nca)
-- [PyTorch Metric learning](https://github.com/KevinMusgrave/pytorch-metric-learning)
+- [Proxy Anchor Loss for Deep Metric Learning](https://github.com/tjddus9597/Proxy-Anchor-CVPR2020)
 
 ## New Method for Further Improvement
-Recently, our paper **Embedding Transfer with Label Relaxation for Improved Metric Learning** which presents the new knowledge distillation method for metric learning is accepted and will be presented at CVPR21.
-Our new method can greatly improve the performance, or reduce sizes and output dimensions of embedding networks with negligible performance degradation.
-If you are also interested in new knowlege distillation method for metric learning, please check the following arxiv and repository links.
 
 ## Citation
 If you use this method or this code in your research, please cite as:
-
-   @misc{kim2023proxy,
-      title={Proxy Anchor-based Unsupervised Learning for Continuous Generalized Category Discovery}, 
-      author={Hyungmin Kim and Sungho Suh and Daehwan Kim and Daun Jeong and Hansang Cho and Junmo Kim},
-      year={2023},
-      eprint={2307.10943},
-      archivePrefix={arXiv},
-      primaryClass={cs.CV}
-   }
 
 ## License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

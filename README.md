@@ -33,5 +33,15 @@ Our code is modified and adapted on these great repositories:
 ## Citation
 If you use this method or this code in your research, please cite as:
 
+    @InProceedings{Kim_2023_ICCV,
+      author = {Kim, Hyungmin and Suh, Sungho and Kim, Daehwan and Jeong, Daun and Cho, Hansang and Kim, Junmo},
+      title = {Proxy Anchor-based Unsupervised Learning for Continuous Generalized Category Discovery},
+      booktitle = {Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV)},
+      month = {October},
+      year = {2023},
+      pages = {16688-16697}
+    }
+
+
 ## License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

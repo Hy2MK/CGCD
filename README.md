@@ -22,6 +22,20 @@ Code will be available soon.
 
 2. Extract the tgz or zip file into `./data/` (Exceptionally, for CUB-200-2011, put the files in a `./data/CUB200`)
 
+## Train Examples
+- CUB-200: We used 1 GPUs to train CUB-200.
+```
+python train.py \
+--model resnet18 \
+--dataset cub \
+--alpha 32 \
+--mrg 0.1 \
+--lr 1e-4 \
+--warm 5 \
+--epochs 60 \
+--batch_size 120 \
+```
+
 ## Acknowledgements
 Our code is modified and adapted on these great repositories:
 

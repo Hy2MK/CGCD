@@ -140,71 +140,70 @@ if __name__ == '__main__':
     best_epoch = 0
 
     #### Load checkpoint.
+  
+    dset_ev = dataset.load(name=args.dataset, root=pth_dataset, mode='eval_0', transform=dataset.utils.make_transform(is_train=False))
+    dlod_ev = torch.utils.data.DataLoader(dset_ev, batch_size=args.sz_batch, shuffle=False, num_workers=args.nb_workers)
 
-    if False:
-        dset_ev = dataset.load(name=args.dataset, root=pth_dataset, mode='eval_0', transform=dataset.utils.make_transform(is_train=False))
-        dlod_ev = torch.utils.data.DataLoader(dset_ev, batch_size=args.sz_batch, shuffle=False, num_workers=args.nb_workers)
+    for epoch in range(0, args.nb_epochs):
+        model.train()
 
-        for epoch in range(0, args.nb_epochs):
-            model.train()
+        bn_freeze = args.bn_freeze
+        if bn_freeze:
+            modules = model.model.modules() if args.gpu_id != -1 else model.module.model.modules()
+            for m in modules:
+                if isinstance(m, nn.BatchNorm2d):
+                    m.eval()
 
-            bn_freeze = args.bn_freeze
-            if bn_freeze:
-                modules = model.model.modules() if args.gpu_id != -1 else model.module.model.modules()
-                for m in modules:
-                    if isinstance(m, nn.BatchNorm2d):
-                        m.eval()
+        losses_per_epoch = []
 
-            losses_per_epoch = []
+        #### Warmup: Train only new params, helps stabilize learning.
+        if args.warm > 0:
+            if args.gpu_id != -1:
+                unfreeze_model_param = list(model.model.embedding.parameters()) + list(criterion_pa.parameters())
+            else:
+                unfreeze_model_param = list(model.module.model.embedding.parameters()) + list(criterion_pa.parameters())
 
-            #### Warmup: Train only new params, helps stabilize learning.
-            if args.warm > 0:
-                if args.gpu_id != -1:
-                    unfreeze_model_param = list(model.model.embedding.parameters()) + list(criterion_pa.parameters())
-                else:
-                    unfreeze_model_param = list(model.module.model.embedding.parameters()) + list(criterion_pa.parameters())
+            if epoch == 0:
+                for param in list(set(model.parameters()).difference(set(unfreeze_model_param))):
+                    param.requires_grad = False
+            if epoch == args.warm:
+                for param in list(set(model.parameters()).difference(set(unfreeze_model_param))):
+                    param.requires_grad = True
 
-                if epoch == 0:
-                    for param in list(set(model.parameters()).difference(set(unfreeze_model_param))):
-                        param.requires_grad = False
-                if epoch == args.warm:
-                    for param in list(set(model.parameters()).difference(set(unfreeze_model_param))):
-                        param.requires_grad = True
+        total, correct = 0, 0
+        pbar = tqdm(enumerate(dlod_tr_0))
+        for batch_idx, (x, y, z) in pbar:
+            ####
+            feats = model(x.squeeze().cuda())
+            loss_pa = criterion_pa(feats, y.squeeze().cuda())
+            opt_pa.zero_grad()
+            loss_pa.backward()
 
-            total, correct = 0, 0
-            pbar = tqdm(enumerate(dlod_tr_0))
-            for batch_idx, (x, y, z) in pbar:
-                ####
-                feats = model(x.squeeze().cuda())
-                loss_pa = criterion_pa(feats, y.squeeze().cuda())
-                opt_pa.zero_grad()
-                loss_pa.backward()
+            torch.nn.utils.clip_grad_value_(model.parameters(), 10)
+            if args.loss == 'Proxy_Anchor':
+                torch.nn.utils.clip_grad_value_(criterion_pa.parameters(), 10)
 
-                torch.nn.utils.clip_grad_value_(model.parameters(), 10)
-                if args.loss == 'Proxy_Anchor':
-                    torch.nn.utils.clip_grad_value_(criterion_pa.parameters(), 10)
+            losses_per_epoch.append(loss_pa.data.cpu().numpy())
+            opt_pa.step()
 
-                losses_per_epoch.append(loss_pa.data.cpu().numpy())
-                opt_pa.step()
+            pbar.set_description('Train Epoch: {} [{}/{} ({:.0f}%)] Loss: {:.4f}/{:.4f} Acc: {:.4f}'.format(
+                epoch, batch_idx + 1, len(dlod_tr_0), 100. * batch_idx / len(dlod_tr_0), loss_pa.item(), 0, 0))
 
-                pbar.set_description('Train Epoch: {} [{}/{} ({:.0f}%)] Loss: {:.4f}/{:.4f} Acc: {:.4f}'.format(
-                    epoch, batch_idx + 1, len(dlod_tr_0), 100. * batch_idx / len(dlod_tr_0), loss_pa.item(), 0, 0))
+        losses_list.append(np.mean(losses_per_epoch))
+        scheduler_pa.step()
 
-            losses_list.append(np.mean(losses_per_epoch))
-            scheduler_pa.step()
+        if (epoch >= 0):
+            with torch.no_grad():
+                print('Evaluating..')
+                Recalls = utils.evaluate_cos(model, dlod_ev, epoch)
 
-            if (epoch >= 0):
-                with torch.no_grad():
-                    print('Evaluating..')
-                    Recalls = utils.evaluate_cos(model, dlod_ev, epoch)
-
-                #### Best model save
-                if best_recall[0] < Recalls[0]:
-                    best_recall = Recalls
-                    best_epoch = epoch
-                    torch.save({'model_pa_state_dict': model.state_dict(), 'proxies_param': criterion_pa.proxies}, '{}/{}_{}_best_step_0.pth'.format(pth_rst_exp, args.dataset, args.model))
-                    with open('{}/{}_{}_best_results.txt'.format(pth_rst_exp, args.dataset, args.model), 'w') as f:
-                        f.write('Best Epoch: {}\tBest Recall@{}: {:.4f}\n'.format(best_epoch, 1, best_recall[0] * 100))
+            #### Best model save
+            if best_recall[0] < Recalls[0]:
+                best_recall = Recalls
+                best_epoch = epoch
+                torch.save({'model_pa_state_dict': model.state_dict(), 'proxies_param': criterion_pa.proxies}, '{}/{}_{}_best_step_0.pth'.format(pth_rst_exp, args.dataset, args.model))
+                with open('{}/{}_{}_best_results.txt'.format(pth_rst_exp, args.dataset, args.model), 'w') as f:
+                    f.write('Best Epoch: {}\tBest Recall@{}: {:.4f}\n'.format(best_epoch, 1, best_recall[0] * 100))
 
     ####
     print('==> Resuming from checkpoint..')
